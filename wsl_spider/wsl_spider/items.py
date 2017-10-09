@@ -5,10 +5,13 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+from scrapy.item import Item, Field
+from scrapy.loader.processors import TakeFirst
 
 
-class WslSpiderItem(scrapy.Item):
+class FirstResultPage(Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    name = Field(output_processor=TakeFirst())
+    html = Field(output_processor=TakeFirst())
     pass
