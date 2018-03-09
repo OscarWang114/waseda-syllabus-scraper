@@ -1,14 +1,14 @@
 var conn = new Mongo('localhost:27017');
 var db = conn.getDB('syllabus');
 
-var year = '2017';
-var term = 'F';
-var yearTerm = year + term;
+var year = '2018';
+var term = 'spr_';
+var yearTerm = term + year;
 var raw = 'raw_';
 
 // rawCourseAll is the name of the initial collection containing the scraped courses information.
 // Change it to the name of your own collection.
-var rawCoursesAll = raw + yearTerm + '_courses';
+var rawCoursesAll = raw + yearTerm + '_courses_all';
 var rawCoursesSciEng = raw + yearTerm + '_courses_sci_eng';
 
 var coursesSciEng = yearTerm + '_courses_sci_eng';
@@ -108,13 +108,9 @@ commonInvalidClassroomsAndCorrections.forEach(function(object) {
 db[rawCoursesSciEng].aggregate([
   {
     $group: {
-      _id: '$hash',
-      year: { $first: '$year' },
-      term: { $first: '$term' },
-      code: { $first: '$code' },
-      title: { $first: '$title' },
-      instructor: { $first: '$instructor' },
-      occurrences: { $first: '$occurrences' },
+      _id: { year: '$year', term: '$term', title: '$title',
+        instructor: '$instructor', occurrences: '$occurrences', code: '$code'
+      },
       schools: { $push: '$school' },
       links: {
         $push: {
@@ -124,7 +120,11 @@ db[rawCoursesSciEng].aggregate([
       }
     }
   },
-  { $project: { _id: 0 } },
+  { $project: { year: '$_id.year', term: '$_id.term', title: '$_id.title',
+      instructor: '$_id.instructor', occurrences: '$_id.occurrences',
+      code: '$_id.code', links: '$links', _id: 0
+    }
+  },
   { $out: coursesSciEng }
 ]);
 
